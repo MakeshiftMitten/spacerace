@@ -8,96 +8,7 @@
                     <canvas id="c" width="600" height="600"></canvas>
                             <script type="text/javascript">
 
-//COLLISION DETECTION ==================================================
-/**
-* Helper function to determine whether there is an intersection between the two polygons described
-* by the lists of vertices. Uses the Separating Axis Theorem
-*
-* @param a an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
-* @param b an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
-* @return true if there is any intersection between the 2 polygons, false otherwise
-*/
-function doPolygonsIntersect(obj1, obj2) {
-  a = getVList(obj1);
-  b = getVList(obj2);
-  var polygons = [a, b];
-  var minA, maxA, projected, i, i1, j, minB, maxB;
-  var totalMin;
-  for (i = 0; i < polygons.length; i++) {
-      // for each polygon, look at each edge of the polygon, and determine if it separates
-      // the two shapes
-      var polygon = polygons[i];
-      for (i1 = 0; i1 < polygon.length; i1++) {
 
-          // grab 2 vertices to create an edge
-          var i2 = (i1 + 1) % polygon.length;
-          var p1 = polygon[i1];
-          var p2 = polygon[i2];
-
-          // find the line perpendicular to this edge
-          var normal = {
-              x: p2.y - p1.y,
-              y: p1.x - p2.x
-          };
-
-          minA = maxA = undefined;
-          // for each vertex in the first shape, project it onto the line perpendicular to the edge
-          // and keep track of the min and max of these values
-          for (j = 0; j < a.length; j++) {
-              projected = normal.x * a[j].x + normal.y * a[j].y;
-              if (isUndefined(minA) || projected < minA) {
-                  minA = projected;
-              }
-              if (isUndefined(maxA) || projected > maxA) {
-                  maxA = projected;
-              }
-          }
-
-          // for each vertex in the second shape, project it onto the line perpendicular to the edge
-          // and keep track of the min and max of these values
-          minB = maxB = undefined;
-          for (j = 0; j < b.length; j++) {
-              projected = normal.x * b[j].x + normal.y * b[j].y;
-              if (isUndefined(minB) || projected < minB) {
-                  minB = projected;
-              }
-              if (isUndefined(maxB) || projected > maxB) {
-                  maxB = projected;
-              }
-          }
-
-          // if there is no overlap between the projects, the edge we are looking at separates the two
-          // polygons, and we know there is no overlap
-          if (maxA < minB || maxB < minA) {
-              return false;
-          }
-      }
-  }
-  return true;
-}
-
-function isUndefined(n) {
-  if (n === undefined) {
-      return true;
-  }
-}
-
-function getRealVertice(x, y, s) {
-  //easy ship access
-  //var s = shipList[0];
-  var sAng = toRad(s.angle);
-  //get x and y relative to center
-  var px = x - s.width / 2;
-  var py = s.width / 2 - y;
-  //rotate around center
-  var rx = px * Math.cos(sAng) - py * Math.sin(sAng);
-  var ry = px * Math.sin(sAng) + py * Math.cos(sAng);
-  //get real coordinates
-  rx = rx + s.width / 2 + s.posX;
-  ry = s.height / 2 - ry + s.posY;
-  return [rx, ry];
-}
-//END COLLISION DETECTION ==================================================
 
 keys = [];
 window.requestAnimFrame = (function () {
@@ -201,31 +112,6 @@ candidateShips.push(new playerShip(gameHeight / 2, gameWidth / 2));
 candidateShips.push(new playerShip(gameHeight / 2, gameWidth / 2) + 2);
 
 var blockList = [];
-blockList.push(new block(1, 4, 30, 30, "n"));
-blockList.push(new block(1, 17, 1, 1, "end"));
-blockList.push(new block(2, 9, 1, 1, "n"));
-blockList.push(new block(-1, 15, 1, 1, "n"));
-blockList.push(new block(3, 15, 1, 1, "n"));
-blockList.push(new block(5, 9, 1, 1, "n"));
-blockList.push(new block(17, 7, 1, 1, "n"));
-blockList.push(new block(11, 19, 1, 1, "n"));
-blockList.push(new block(13, 3, 1, 1, "n"));
-blockList.push(new block(15, 19, 1, 1, "n"));
-blockList.push(new block(17, 2, 1, 1, "n"));
-blockList.push(new block(5, 9, 1, 1, "n"));
-blockList.push(new block(10, 7, 1, 1, "n"));
-blockList.push(new block(14, 19, 1, 1, "n"));
-blockList.push(new block(10, 0, 1, 1, "n"));
-blockList.push(new block(-1, 19, 1, 1, "n"));
-blockList.push(new block(-1, 18.25, 1, 1, "n"));
-blockList.push(new block(-1, 16.75, 1, 1, "n"));
-blockList.push(new block(-1, 17.5, 1, 1, "n"));
-blockList.push(new block(3, 19, 1, 1, "n"));
-blockList.push(new block(3, 18.25, 1, 1, "n"));
-blockList.push(new block(3, 16.75, 1, 1, "n"));
-blockList.push(new block(3, 17.5, 1, 1, "n"));
-blockList.push(new block(7.75, 1, 1, 1, "n"));
-blockList.push(new block(7, 1, 1, 1, "n"));
 var cargoList = [];
 cargoList.push(new cargo(10, 2, 1))
 var landingPads = [];
@@ -367,11 +253,11 @@ function drawGame() {
                ctx.fillText("DELIVERY!",canvasWidth/2, canvasHeight/2+40) ;
                 ctx.restore();
           }
-            tracer.log("WELCOME TO DERP SPACE NINE");
-  tracer.log("YOUR GOAL IS TO PICK UP THE YELLOW CARGO");
-  tracer.log("AND DELIVER IT TO THE BLUE LANDING PAD");
-  tracer.log("W, S, P, AND L CONTROL YOUR JETS, PARDNER");
-  tracer.log("HAVE FUN!(PRESS M TO CLOSE THIS MESSAGE)");
+  //           tracer.log("WELCOME TO DERP SPACE NINE");
+  // tracer.log("YOUR GOAL IS TO PICK UP THE YELLOW CARGO");
+  // tracer.log("AND DELIVER IT TO THE BLUE LANDING PAD");
+  // tracer.log("W, S, P, AND L CONTROL YOUR JETS, PARDNER");
+  // tracer.log("HAVE FUN!(PRESS M TO CLOSE THIS MESSAGE)");
   }
 }
 
@@ -709,8 +595,8 @@ function physics() {
       for (var x = 0; x < ship.thrusterList.length; x++) {
           var cur = ship.thrusterList[x];
           if (keys[cur.key]) {
-              dPower += 1 * cur.yOffset;
-              dAngle += 1 * -cur.xOffset * (cur.yOffset < 0 ? -1 : 1);
+              dPower += 10 * cur.yOffset;
+              dAngle += 10 * -cur.xOffset * (cur.yOffset < 0 ? -1 : 1);
 
           }
 
@@ -741,49 +627,17 @@ function physics() {
           ship.posX = gameWidth - ship.width;
           ship.velX = -.9 * ship.velX;
       }
-      for (var c = 0; c< cargoList.length;c++){
-        if (doPolygonsIntersect(ship, cargoList[c])) {
-          console.log("hit the cargo!");
-          cargoList[c].posX = -.10;
-          cargoList[c].posY = .1;
-          ship.hasCargo = true;
-        }
-      }
+      
       for (var bnum in blockList) {
           var blockVList = [];
           var block = blockList[bnum];
+      }
 
 
-
-      
-          if (doPolygonsIntersect(ship, block)) {           
-
-              if(block.landingPad == "end" && ship.hasCargo){
-                game.won = true;
-                ship.velX = 0;
-                ship.velY = 0;
-
-                
-              }
-              else if(Math.sqrt(ship.velX*ship.velX + ship.velY*ship.velY) > .5) {
-                game.lost = true;
-                ship.velX = 0;
-                ship.velY = 0;
-                
-              }
-
-              ship.velX = -ship.velX;
-              ship.velY = -ship.velY;
-              ship.velA = -ship.velA;
-          }
-
-          ship.angle += ship.velA * d;
+      ship.velY -= 4 *d;
+      ship.angle += ship.velA * d;
           ship.posY -= ship.velY * d;
           ship.posX -= ship.velX * d;
-      }
-      
-
-
   }
 
 } 
